@@ -1,11 +1,16 @@
 const webpack = require("webpack");
 const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 
 module.exports = {
-  entry: "./src/index.js",
+  entry: {
+    bundle: "./src/index.js",
+    vendor: ["react", "react-dom"],
+  },
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "bundle.js",
+    filename: "js/[name].[chunkhash].js",
   },
 
   module: {
@@ -28,4 +33,28 @@ module.exports = {
   },
 
   resolve: { extensions: ["*", ".js", ".jsx"] },
+  optimization: {
+    splitChunks: {
+      cacheGroups: {
+        vendor: {
+          chunks: "initial",
+          name: "vendor",
+          test: "vendor",
+          enforce: true,
+        },
+      },
+    },
+  },
+
+  plugins: [
+    new HtmlWebpackPlugin({
+      filename: "index.html",
+      template: "public/index.html",
+    }),
+
+    new CleanWebpackPlugin({
+      protectWebpackAssets: true,
+      cleanAfterEveryBuildPatterns: ["build/*.*"],
+    }),
+  ],
 };
